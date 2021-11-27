@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    body{background-coloR:#000;color:#fff;}
+    .row{display: flex;}
+  </style>
+</head>
+<body>
+<h1 id="day"></h1>
+<div class="row">
+  <div id="ampm"></div>
+  <h2 id="time"></h2>
+</div>
+  <script>
+    var dayDiv = document.getElementById('day');
+    var timeDiv = document.getElementById('time');
+    setInterval(getTime,1000);
+    
+    function getTime(){
+      var now = new Date();
+      var year = now.getFullYear();
+      var month = now.getMonth();
+      var day = now.getDay();
+      var hour = now.getHours();
+      var min = now.getMinutes();
+      var sec = now.getSeconds();
+
+      if (hour > 12){
+        hour = hour - 12;
+        ampm.textContent = 'PM'
+      }else{
+        ampm.textContent = 'AM'
+      }
+
+      month = month < 10? '0' + month : month;
+      hour = hour < 10? '0' + hour : hour;
+      sec = sec < 10? '0' + sec : sec;
+
+      dayDiv.textContent = `${year}년 ${month}월 ${day}일`
+      timeDiv.textContent = `${hour}: ${min}: ${sec}`
+    }
+
+  </script>
+</body>
+</html>
