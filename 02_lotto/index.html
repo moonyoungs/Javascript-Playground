@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .container{display: flex;flex-wrap:wrap;max-width:450px;}
+    .ball-style{position:relative;display:flex;align-items: center;justify-content:center;width:50px;height:50px;margin:10px auto;border-radius:50%;border:10px solid #aaa;}
+  </style>
+</head>
+<body>
+  <button class="btn">자동</button>
+  <div class="container"></div>
+  <script>
+    var btn = document.querySelector(".btn");
+    btn.addEventListener("click", makeNumbers);
+    var colorArr = ['orange', 'skyblue', 'red', 'purple', 'green']
+
+    function makeNumbers(){
+      var lotteryNumbers = []
+      var leng = lotteryNumbers.length;
+      while(lotteryNumbers.length < 6){
+        var randomNumber = Math.floor(Math.random() * 45) +1;
+        if(lotteryNumbers.indexOf(randomNumber) === -1){
+          lotteryNumbers.push(randomNumber); 
+          makeBalls(randomNumber);
+          console.log(lotteryNumbers)
+        }
+      }
+    }
+    function makeBalls(randomNumber){
+      var container = document.querySelector(".container");
+      var ball = document.createElement("div");
+      container.appendChild(ball);
+      ball.classList.add("ball-style");
+      ball.textContent = randomNumber;
+      var colorIdx = Math.floor(randomNumber / 10);
+      ball.style.borderColor = colorArr[colorIdx];
+    }
+  </script>
+</body>
+</html>
