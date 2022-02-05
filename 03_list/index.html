@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping list</title>
+  <style>
+    /* Reset */
+    ul,li,p{padding:0;margin:0;}
+    button{cursor: pointer;}
+
+    .shopping-list{width:400px;overflow:hidden;background-color:#fff;box-shadow:0 0 20px rgba(0,0,0,.1);border-radius:20px;}
+    .header-sec{display:flex;align-items: center;justify-content: center;height:60px;background:lightsteelblue;}
+    .body-sec{height:300px;overflow-y:auto}
+    .body-sec__items{padding:20px 0}
+    .body-sec__item{display: flex;align-items: center;padding:0;}
+    .body-sec__title{width:calc(100% - 60px);padding:10px 20px;}
+    .body-sec__del-btn{width:60px;height:30px;margin:0 20px;font-size:14px;font-weight:600;border:2px solid #222;border-radius:30px;background:transparent}
+    .footer-sec{display:flex;justify-content: center;align-items: center;height:80px;background:lightsteelblue;}
+    .footer-sec__input-wrap{height:40px;padding:0 0 0 20px;}
+    .footer-sec__input{height:100%;padding:0 20px;border:none;}
+    .footer-sec__add-btn{width:80px;height:40px;font-size:14px;font-weight:600;border:none;}
+    
+  </style>
+</head>
+<body>
+  <section class="shopping-list">
+    <div class="header-sec">
+      <p class="header-sec__title">Shopping List</p>
+    </div>
+    <div class="body-sec">
+      <ul class="body-sec__items"></ul>
+    </div>
+    <div class="footer-sec">
+      <div class="footer-sec__input-wrap">
+        <input type="text" id="footer-sec__input" class="footer-sec__input" placeholder="Add list..">
+      </div>
+      <button type="button" id="footer-sec__add-btn" class="footer-sec__add-btn">add</button>
+    </div>
+  </section>
+</body>
+</html>
+
+<script>
+  const items = document.querySelector(".body-sec__items");
+  
+  // **********************
+  // 목록 추가
+  // **********************
+  const addBtn = document.querySelector("#footer-sec__add-btn");
+  const input = document.querySelector("#footer-sec__input");
+
+  // 1. 목록 추가하기
+  function onAdd(){
+    const inputValue = input.value;
+    if(inputValue === ""){
+      alert("추가할 목록을 입력해주세요.")
+      input.focus();
+      return;
+    }
+    createItem(inputValue);
+    input.value = "";
+    input.focus();
+  }
+
+  let id = 0;
+  function createItem(inputValue){
+    const item = document.createElement("li");
+    item.setAttribute("class","body-sec__item");
+    item.setAttribute("data-id", id);
+    item.innerHTML = `
+      <p class="body-sec__title">${inputValue}</p>
+      <button type="button" id="body-sec__del-btn" class="body-sec__del-btn" data-id="${id}">del</button>
+    `
+    items.appendChild(item);
+    item.scrollIntoView({block:"center"});
+    id++;
+  }
+
+  // 1-1. Add 버튼을 클릭해서
+  addBtn.addEventListener("click", function (){
+    onAdd();
+  });
+
+  // 1-2. enter 버튼을 눌러서
+  input.addEventListener("keypress", event =>{
+    if(event.keyCode == 13 || event.keyCode == 32){
+      onAdd()
+    }
+  });
+
+  // **********************
+  // 목록 삭제
+  // **********************
+  // 2. del 버튼을 클릭
+  items.addEventListener("click", event => {
+    const id = event.target.dataset.id;
+    if(id){
+      const toBeDeleted = document.querySelector(`.body-sec__item[data-id="${id}"]`)
+      toBeDeleted.remove();
+    }
+  });
+
+
+
+
+
+</script>
