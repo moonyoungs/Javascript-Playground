@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/xeicon@2.3.3/xeicon.min.css">
+  <style>
+    /* Reset */
+    *{padding:0;margin:0;}
+    button{border:none;outline:none;cursor:pointer}
+
+    body{text-align: center;margin: 0 auto;}
+    .game{display:flex;flex-direction: column;overflow:hidden;position:relative;width:800px;height:500px;margin: 30px auto;background:url(img/background.png) center/cover;border-radius: 20px;}
+    .game__header{display: flex;flex-direction: column;align-items: center;padding:20px}
+    .game__timer{opacity:0;width:100px;background-color: white;text-align: center;border:5px solid black;font-size:26px;margin-top:8px;border-radius: 20px;}
+    .game__score{opacity:0;width:50px;height:50px;font-size:34px;background-color:darksalmon;text-align: center;color:#fff;border-radius: 50%;border:3px solid black;margin-top:8px;}
+    .game__btn{opacity:1;width:60px;height:60px;font-size:32px;line-height:60px;background-color:wheat;border:4px solid black;border-radius:15px;transition:transform .3s;}
+    .game__btn:hover{transform: scale(1.1);}
+    .game__btn--hide{opacity:0;}
+    .game__field{position:relative;width:100%;height:100%;margin-top:50px;transform:translate(-20px,-50px);}
+    
+
+    .popup{display:flex;align-items:center;flex-direction: column;width:400px;height:120px;margin:0 auto;background-color:rgba(0,0,0,.8);color:#fff;border-radius:15px;transform:translateY(-150%)}
+    .popup__refresh{width:40px;height:40px;margin:20px 0 5px;font-size:24px;font-weight:900;border-radius: 50%;}
+    .popup__msg{font-size:24px;}
+    .popup--hide{display: none;}
+
+    .game__carrot{position:absolute;width:80px;height:80px;background-image:url("img/carrot.png")}
+    .game__bug{position:absolute;width:50px;height:50px;background-image:url("img/bug.png")}
+
+  </style>
+</head>
+<body>
+  <section class="game">
+    <header class="game__header">
+      <button class="game__btn"><i class="xi-play"></i></button>
+      <span class="game__timer">start!</span>
+      <span class="game__score"></span>
+    </header>
+    <div class="game__field">
+
+    </div>
+  </section>
+  <section class="popup popup--hide">
+    <button class="popup__refresh"><i class="xi-refresh"></i></button>
+    <span class="popup__msg"></span>
+  </section>
+</body>
+</html>
+
+<script>
+  // *******************
+  // 세팅 
+  // *******************
+  const playBtn = document.querySelector(".game__btn");
+  const playIcon = playBtn.querySelector(".xi-play");
+  const timerUI = document.querySelector(".game__timer");
+  const scoreUI = document.querySelector(".game__score");
+  const field = document.querySelector(".game__field");
+  const fieldRect = field.getBoundingClientRect();
+  const popup = document.querySelector(".popup");
+  const popup_msg = document.querySelector(".popup__msg");
+  const popup_refresh = document.querySelector(".popup__refresh");
+
+  let started = false;
+  let score = 0;
+  let timer = undefined;
+  let game_duration = 5;
+  const carrot_count = 10;
+  const bug_count = 10;
+
+  const bgSound = new Audio("sound/bg.mp3")
+  const carrotSound = new Audio("sound/carrot_pull.mp3")
+  const bugSound = new Audio("sound/bug_pull.mp3")
+  const winSound = new Audio("sound/game_win.mp3")
+  const loseSound = new Audio("sound/alert.wav")
+
+  function startGame(){
+    started = true;
+    initGame();
+    showStopBtn();
+    showTimerAndScore();
+    startGameTimer();
+  }
+
+  function initGame(){
+  // 초기화 
+  score = 0;
+  field.innerHTML ="";
+  scoreUI.innerText = carrot_count;
+
+  // 벌레와 당근 만들어서 필드에 추가
+  const carrot = document.createAttribute("div");
+    addItem('game__carrot', carrot_count)
+    addItem('game__bug', bug_count)
+  }
+  function addItem(className, count){
+    const x1 = 0;
+    const y1 = 0;
+    const x2 = fieldRect.width;
+    const y2 = fieldRect.height;
+    for (let i = 0;i<count;i++){
+      const item = document.createElement("img");
+      item.setAttribute("class",className);
+      const x = randomNumber(x1, x2);
+      const y = randomNumber(y1, y2);
+      item.style.left = `${x}px`;
+      item.style.top = `${y}px`;
+      field.appendChild(item)
+    }
+  }
+  // 벌레,당근의 positon -> left, top 랜덤 좌표 만들기
+    function randomNumber(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+  
+  function showStopBtn(){
+    playIcon.classList.remove("xi-play");
+    playIcon.classList.add("xi-stop");
+  }
+  function showPlayBtn(){
+    playIcon.classList.remove("xi-stop");
+    playIcon.classList.add("xi-play");
+  }
+  function showTimerAndScore(){
+    timerUI.style.opacity = "1";
+    scoreUI.style.opacity = "1";
+  }
+
+  function startGameTimer(){
+    let remainingTimeSec = game_duration;
+    updateTimerText(remainingTimeSec);
+    timer = setInterval( () => {
+      if (remainingTimeSec <= 0){
+        clearInterval(timer);
+        finishGame(carrot_count === score)
+
+        return;
+      }
+      updateTimerText(--remainingTimeSec);
+    }, 1000);    
+  }
+
+  function updateTimerText(time){
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    timerUI.innerText = `${minutes}:${seconds}`;
+  }
+
+  // 멈춤
+  function stopGame(){
+    started = false;
+    hideGameBtn();
+    showPopupWithText("REPLAY?");
+    stopGameTimer();
+  }
+
+  function stopGameTimer(){
+    clearInterval(timer);
+  }
+  function hideGameBtn(){
+    playBtn.classList.add("game__btn--hide");
+  }
+
+  function showPopupWithText(text){
+    popup.classList.remove("popup--hide");
+    popup_msg.innerText = text;
+  }
+
+  function hiePopupWithText(){
+    popup.classList.add("popup--hide");
+  }
+
+  function playSound(sound){
+    sound.play();
+  }
+  function stopSound(sound){
+    sound.pause();
+  }
+
+  // *******************
+  // 게임 조작
+  // *******************
+
+  // play 버튼 클릭 -> start / stop 
+  playBtn.addEventListener("click", () => {
+    playSound(bgSound)
+    if(started){
+      stopGame();
+    }else{
+      startGame();
+    }
+  })
+  popup_refresh.addEventListener("click", () => {
+    playSound(bgSound)
+    startGame();
+    hiePopupWithText()
+  })
+
+
+  field.addEventListener("click",onFieldClick)
+  function onFieldClick(){
+    if(!started){
+      return;
+    }
+    const target = event.target;
+    if(target.matches(".game__carrot")){
+      target.remove();
+      playSound(carrotSound)
+      score++;
+      updateScoreBoard();
+      if(score === carrot_count){
+        finishGame(true);
+        playSound(winSound);
+      }
+    } else if(target.matches(".game__bug")){
+      playSound(bugSound);
+      finishGame(false);     
+    }
+
+  }
+  function updateScoreBoard(){
+    scoreUI.innerText = carrot_count - score;
+  } 
+
+  function finishGame(win){
+    started = false;
+    stopGameTimer();
+    stopSound(bgSound);
+    hideGameBtn();
+    showPopupWithText(win? "You Win 👍👍👍👍" : "You Lost 😜💩");
+    playSound(loseSound);
+  }
+
+</script>
