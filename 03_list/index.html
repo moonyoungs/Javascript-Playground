@@ -17,7 +17,7 @@
     .body-sec__item{display: flex;align-items: center;padding:0;}
     .body-sec__title{width:calc(100% - 60px);padding:10px 20px;}
     .body-sec__del-btn{width:60px;height:30px;margin:0 20px;font-size:14px;font-weight:600;border:2px solid #222;border-radius:30px;background:transparent}
-    .footer-sec{display:flex;justify-content: center;align-items: center;height:80px;background:lightsteelblue;}
+    .form-wrap{display:flex;justify-content: center;align-items: center;height:80px;background:lightsteelblue;}
     .footer-sec__input-wrap{height:40px;padding:0 0 0 20px;}
     .footer-sec__input{height:100%;padding:0 20px;border:none;}
     .footer-sec__add-btn{width:80px;height:40px;font-size:14px;font-weight:600;border:none;}
@@ -33,10 +33,12 @@
       <ul class="body-sec__items"></ul>
     </div>
     <div class="footer-sec">
-      <div class="footer-sec__input-wrap">
-        <input type="text" id="footer-sec__input" class="footer-sec__input" placeholder="Add list..">
-      </div>
-      <button type="button" id="footer-sec__add-btn" class="footer-sec__add-btn">add</button>
+      <form class="form-wrap">
+        <div class="footer-sec__input-wrap">
+          <input type="text" id="footer-sec__input" class="footer-sec__input" placeholder="Add list..">
+        </div>
+        <button type="submit" id="footer-sec__add-btn" class="footer-sec__add-btn">add</button>
+      </form>
     </div>
   </section>
 </body>
@@ -44,6 +46,7 @@
 
 <script>
   const items = document.querySelector(".body-sec__items");
+  const form = document.querySelector(".form-wrap");
   
   // **********************
   // 목록 추가
@@ -78,17 +81,11 @@
     id++;
   }
 
-  // 1-1. Add 버튼을 클릭해서
-  addBtn.addEventListener("click", function (){
+  // form 태그를 사용하여 submit 형태로 바꾸기
+  form.addEventListener("submit", e => {
+    e.preventDefault();
     onAdd();
-  });
-
-  // 1-2. enter 버튼을 눌러서
-  input.addEventListener("keypress", event =>{
-    if(event.keyCode == 13 || event.keyCode == 32){
-      onAdd()
-    }
-  });
+  })
 
   // **********************
   // 목록 삭제
